@@ -214,12 +214,11 @@ export class ZoomPanPinch {
           }
         } else {
 		  // recalculate bounds		
-        //   handleCancelAnimation(this);
           handleCalculateBounds(this, this.transformState.scale);
           handleAlignToBounds(this, 0);
 
-		// allow us to say that the whole thing is initialized and ready for interactions
-		this.ready = true;
+			// allow us to say that the whole thing is initialized and ready for interactions
+			this.ready = true;
         }
       }
     });
@@ -228,6 +227,10 @@ export class ZoomPanPinch {
     this.observer.observe(wrapper);
     this.observer.observe(contentComponent);
   };
+
+  handleCancelAnimation = (): void => {
+	handleCancelAnimation(this);
+  }
 
   /// ///////
   // Zoom

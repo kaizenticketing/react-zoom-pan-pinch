@@ -17,8 +17,8 @@ export const handleCancelAnimation = (
 ): void => {
   if (!contextInstance.mounted) return;
 
-  if (contextInstance.animation)
-console.trace("🛑 Cancelling animation");
+//   if (contextInstance.animation)
+// 	console.trace("🛑 Cancelling animation");
 
   handleCancelAnimationFrame(contextInstance.animation);
   // Clear animation state
