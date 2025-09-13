@@ -55,6 +55,7 @@ export class ZoomPanPinch {
   public props: ReactZoomPanPinchProps;
 
   public mounted = true;
+  public ready = false;
 
   public pinchLastCenterX: number | null = null;
   public pinchLastCenterY: number | null = null;
@@ -200,7 +201,9 @@ export class ZoomPanPinch {
 
     this.observer = new ResizeObserver((entries) => {
       if (hasTarget(entries, wrapper) || hasTarget(entries, contentComponent)) {
+	  
         if (centerOnInit && !isCentered) {
+		  // if center on init is set, and we haven't yet centered, do so now
           const currentWidth = contentComponent.offsetWidth;
           const currentHeight = contentComponent.offsetHeight;
 
@@ -210,9 +213,13 @@ export class ZoomPanPinch {
             this.setCenter();
           }
         } else {
-          handleCancelAnimation(this);
+		  // recalculate bounds		
+        //   handleCancelAnimation(this);
           handleCalculateBounds(this, this.transformState.scale);
           handleAlignToBounds(this, 0);
+
+		// allow us to say that the whole thing is initialized and ready for interactions
+		this.ready = true;
         }
       }
     });
@@ -301,6 +308,10 @@ export class ZoomPanPinch {
     event.preventDefault();
     event.stopPropagation();
 
+	// if an animation is running and interactions are locked, prevent panning
+	if (this.animation && this.setup.lockInteractionsDuringAnimation)
+		return;
+
     handleCancelAnimation(this);
     handlePanningStart(this, event);
     handleCallback(getContext(this), event, onPanningStart);
@@ -346,6 +357,10 @@ export class ZoomPanPinch {
 
     const isAllowed = isPinchStartAllowed(this, event);
     if (!isAllowed) return;
+
+	// if an animation is running and interactions are locked, prevent panning
+	if (this.animation && this.setup.lockInteractionsDuringAnimation)
+		return;
 
     handlePinchStart(this, event);
     handleCancelAnimation(this);
@@ -393,6 +408,10 @@ export class ZoomPanPinch {
     const isAllowed = isPanningStartAllowed(this, event);
 
     if (!isAllowed) return;
+	
+	// if an animation is running and interactions are locked, prevent panning
+	if (this.animation && this.setup.lockInteractionsDuringAnimation)
+		return;
 
     const isDoubleTap =
       this.lastTouch &&

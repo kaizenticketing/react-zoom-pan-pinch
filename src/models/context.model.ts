@@ -122,6 +122,7 @@ export type ReactZoomPanPinchProps = {
     animationType?: keyof typeof animations;
     equalToMove?: boolean;
   };
+  lockInteractionsDuringAnimation?: boolean;
   onWheelStart?: (ref: ReactZoomPanPinchRef, event: WheelEvent) => void;
   onWheel?: (ref: ReactZoomPanPinchRef, event: WheelEvent) => void;
   onWheelStop?: (ref: ReactZoomPanPinchRef, event: WheelEvent) => void;

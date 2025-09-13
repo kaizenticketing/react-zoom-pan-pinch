@@ -19,6 +19,10 @@ export function handlePanningStart(
   contextInstance: ReactZoomPanPinchContext,
   event: MouseEvent | TouchEvent,
 ): void {
+	// if an animation is running and interactions are locked, prevent panning
+	if (contextInstance.animation && contextInstance.setup.lockInteractionsDuringAnimation)
+		return;
+	
   const { scale } = contextInstance.transformState;
 
   handleCancelAnimation(contextInstance);

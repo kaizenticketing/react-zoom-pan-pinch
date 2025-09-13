@@ -79,6 +79,7 @@ export const initialSetup: LibrarySetup = {
     animationType: "easeOut",
     equalToMove: true,
   },
+  lockInteractionsDuringAnimation: true
 };
 
 export const baseClasses: ReactZoomPanPinchBaseClasses = {

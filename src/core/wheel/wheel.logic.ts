@@ -21,6 +21,10 @@ export const handleWheelStart = (
   contextInstance: ReactZoomPanPinchContext,
   event: WheelEvent,
 ): void => {
+	// if an animation is running and interactions are locked, prevent panning
+	if (contextInstance.animation && contextInstance.setup.lockInteractionsDuringAnimation)
+		return;
+
   const { onWheelStart, onZoomStart } = contextInstance.props;
 
   if (!contextInstance.wheelStopEventTimer) {

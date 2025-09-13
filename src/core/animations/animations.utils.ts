@@ -16,6 +16,10 @@ export const handleCancelAnimation = (
   contextInstance: ReactZoomPanPinchContext,
 ): void => {
   if (!contextInstance.mounted) return;
+
+  if (contextInstance.animation)
+console.trace("🛑 Cancelling animation");
+
   handleCancelAnimationFrame(contextInstance.animation);
   // Clear animation state
   contextInstance.animate = false;
@@ -30,8 +34,13 @@ export function handleSetupAnimation(
   callback: (step: number) => void,
 ): void {
   if (!contextInstance.mounted) return;
+
   const startTime = new Date().getTime();
   const lastStep = 1;
+
+  	// if an animation is running and interactions are locked, prevent panning
+	if (contextInstance.animation && contextInstance.setup.lockInteractionsDuringAnimation)
+		return;
 
   // if another animation is active
   handleCancelAnimation(contextInstance);

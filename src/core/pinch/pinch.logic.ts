@@ -34,6 +34,10 @@ export const handlePinchStart = (
   contextInstance: ReactZoomPanPinchContext,
   event: TouchEvent,
 ): void => {
+	// if an animation is running and interactions are locked, prevent panning
+	if (contextInstance.animation && contextInstance.setup.lockInteractionsDuringAnimation)
+		return;
+	
   const distance = getTouchDistance(event);
 
   contextInstance.pinchStartDistance = distance;

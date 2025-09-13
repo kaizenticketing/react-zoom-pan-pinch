@@ -447,6 +447,12 @@ export const wrapperPropsTable: ComponentProps = {
         "The calculation of the velocity animation duration is adjusted to the length of the mouse movement",
     },
   },
+  lockInteractionsDuringAnimation: {
+	type: ["boolean"],
+	defaultValue: String(initialSetup.lockInteractionsDuringAnimation),
+	description:
+		"Lock all interactions (panning, zooming, pinch) during any running animation (double click, zoom/pinch to bounds, alignment, zoom out animation)",
+  },
   onWheelStart: {
     type: ["(ref: ReactZoomPanPinchRef, event) => void"],
     defaultValue: "undefined",
