@@ -54,6 +54,13 @@ export const handlersTable: ComponentProps = {
     ],
     description: "Function used for reset button",
   },
+  setExplicitBounds: {
+	type: ["function(bounds)"],
+	parameters: [
+	  "bounds: { minX: number; maxX: number; minY: number; maxY: number }"
+	],
+	description: "Function used for setting explicit bounds",
+  },
   centerView: {
     type: ["function(scale, animationTime, animationName)"],
     parameters: [

@@ -1,4 +1,4 @@
-import { ReactZoomPanPinchContext } from "../../models";
+import { BoundsType, ReactZoomPanPinchContext } from "../../models";
 import {
   calculateZoomToNode,
   handleZoomToViewCenter,
@@ -7,6 +7,7 @@ import {
 import { animations } from "../animations/animations.constants";
 import { animate, handleCancelAnimation } from "../animations/animations.utils";
 import { getCenterPosition } from "../../utils";
+import { setExplicitBounds as internalSetExplicitBounds } from "core/bounds/bounds.utils";
 
 export const zoomIn =
   (contextInstance: ReactZoomPanPinchContext) =>
@@ -120,4 +121,12 @@ export const zoomToElement =
       );
       animate(contextInstance, targetState, animationTime, animationType);
     }
+  };
+
+export const setExplicitBounds =
+  (contextInstance: ReactZoomPanPinchContext) =>
+  (
+	newBounds: BoundsType | null
+  ): void => {
+	internalSetExplicitBounds(contextInstance, newBounds);
   };
