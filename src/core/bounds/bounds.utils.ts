@@ -197,7 +197,5 @@ export function setExplicitBounds(
   contextInstance: ReactZoomPanPinchContext,
   newBounds: BoundsType | null
 ): void {
-	console.log('setExplicitBounds', newBounds, contextInstance.explicitBounds);
-
 	contextInstance.explicitBounds = newBounds;
 }
