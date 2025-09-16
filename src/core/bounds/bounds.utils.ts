@@ -34,56 +34,69 @@ export function getComponentsSizes(
 }
 
 export const calculateBounds = (
-	contextInstance: ReactZoomPanPinchContext,
-  wrapperWidth: number,
-  newContentWidth: number,
-  diffWidth: number,
-  wrapperHeight: number,
-  newContentHeight: number,
-  diffHeight: number,
-  centerZoomedOut: boolean,
+  contextInstance: ReactZoomPanPinchContext,
+  newScale: number,
 ): BoundsType => {
-		const scaleWidthFactor =
-			wrapperWidth > newContentWidth
-				? diffHeight * (centerZoomedOut ? 1 : 0.5)
-				: 0;
-		const scaleHeightFactor =
-			wrapperHeight > newContentHeight
-			// TODO: this originally used diffHeight - is that right?
-				? diffHeight * (centerZoomedOut ? 1 : 0.5)
-				: 0;
+  const { wrapperComponent, contentComponent, setup } = contextInstance;
 
-		// TODO: scale affects these values!
+  // Fallback when components are not mounted
+  if (!wrapperComponent || !contentComponent) {
+    return { minPositionX: 0, maxPositionX: 0, minPositionY: 0, maxPositionY: 0 };
+  }
 
-		if (contextInstance.explicitBounds) {
-			// if explicit bounds are set, use those instead of calculating from the content size
+  const { wrapperWidth, wrapperHeight, newContentWidth, newContentHeight, newDiffWidth, newDiffHeight } =
+    getComponentsSizes(wrapperComponent, contentComponent, newScale);
 
-			const explicitBoundsWidth = contextInstance.explicitBounds.maxPositionX - contextInstance.explicitBounds.minPositionX;
-			const explicitBoundsHeight = contextInstance.explicitBounds.maxPositionY - contextInstance.explicitBounds.minPositionY;
+  const { centerZoomedOut } = setup;
 
-			const minPositionX = wrapperWidth - explicitBoundsWidth - scaleWidthFactor;
-			const maxPositionX = scaleWidthFactor;
-			const minPositionY = wrapperHeight - explicitBoundsHeight - scaleHeightFactor;
-			const maxPositionY = scaleHeightFactor;
+  // When content is smaller than wrapper, allow space to center or half-range
+  const scaleWidthFactor =
+    wrapperWidth > newContentWidth
+      ? newDiffWidth * (centerZoomedOut ? 1 : 0.5)
+      : 0;
+  const scaleHeightFactor =
+    wrapperHeight > newContentHeight
+      ? newDiffHeight * (centerZoomedOut ? 1 : 0.5)
+      : 0;
 
-			// console.info('getBounds (explicit)', { wrapperWidth, newContentWidth, newDiffWidth, wrapperHeight, newContentHeight, newDiffHeight, centerZoomedOut, minPositionX, maxPositionX, minPositionY, maxPositionY, explicitBounds: contextInstance.explicitBounds });
+  // if explicit bounds are provided (interpreted as content-space rectangle),
+  // convert them into wrapper-space pan limits using current scale.
+  if (contextInstance.explicitBounds) {
+    const { minPositionX: minX, maxPositionX: maxX, minPositionY: minY, maxPositionY: maxY } =
+      contextInstance.explicitBounds;
 
-			return { minPositionX, maxPositionX, minPositionY, maxPositionY };
-		}
-		else {
-			// otherwise calculate from the content size
+    const rectWidthScaled = (maxX - minX) * newScale;
+    const rectHeightScaled = (maxY - minY) * newScale;
 
-			const minPositionX = wrapperWidth - newContentWidth - scaleWidthFactor;
-			const maxPositionX = scaleWidthFactor;
-			const minPositionY = wrapperHeight - newContentHeight - scaleHeightFactor;
-			const maxPositionY = scaleHeightFactor;
+    const slackX = wrapperWidth - rectWidthScaled;
+    const slackY = wrapperHeight - rectHeightScaled;
 
-			// console.info('getBounds (whole svg)', { wrapperWidth, newContentWidth, newDiffWidth, wrapperHeight, newContentHeight, newDiffHeight, centerZoomedOut, minPositionX, maxPositionX, minPositionY, maxPositionY });
+    const scaleWidthFactor = slackX > 0 ? slackX * (centerZoomedOut ? 1 : 0.5) : 0;
+    const scaleHeightFactor = slackY > 0 ? slackY * (centerZoomedOut ? 1 : 0.5) : 0;
 
-			return { minPositionX, maxPositionX, minPositionY, maxPositionY };
-		}
-	// }
-}
+    // work in a coordinate space relative to the rectangle's top-left by
+    // offsetting with minX/minY, then convert back.
+    const minPrimeX = wrapperWidth - rectWidthScaled - scaleWidthFactor;
+    const maxPrimeX = scaleWidthFactor;
+    const minPrimeY = wrapperHeight - rectHeightScaled - scaleHeightFactor;
+    const maxPrimeY = scaleHeightFactor;
+
+    const minPositionX = minPrimeX - minX * newScale;
+    const maxPositionX = maxPrimeX - minX * newScale;
+    const minPositionY = minPrimeY - minY * newScale;
+    const maxPositionY = maxPrimeY - minY * newScale;
+
+    return { minPositionX, maxPositionX, minPositionY, maxPositionY };
+  }
+
+  // default bounds based on content size inside wrapper
+  const minPositionX = wrapperWidth - newContentWidth - scaleWidthFactor;
+  const maxPositionX = scaleWidthFactor;
+  const minPositionY = wrapperHeight - newContentHeight - scaleHeightFactor;
+  const maxPositionY = scaleHeightFactor;
+
+  return { minPositionX, maxPositionX, minPositionY, maxPositionY };
+};
 
 export function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(v, max));
