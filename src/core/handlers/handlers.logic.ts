@@ -8,6 +8,7 @@ import { animations } from "../animations/animations.constants";
 import { animate, handleCancelAnimation } from "../animations/animations.utils";
 import { getCenterPosition } from "../../utils";
 import { setExplicitBounds as internalSetExplicitBounds } from "core/bounds/bounds.utils";
+import { handleAlignToBounds } from "core/pan/panning.logic";
 
 export const zoomIn =
   (contextInstance: ReactZoomPanPinchContext) =>
@@ -129,4 +130,10 @@ export const setExplicitBounds =
 	newBounds: BoundsType | null
   ): void => {
 	internalSetExplicitBounds(contextInstance, newBounds);
+
+	// TODO: cancel animation?
+
+	// TODO: make sure we're within the new bounds
+		// handleCalculateBounds(contextInstance, contextInstance.transformState.scale);
+		handleAlignToBounds(contextInstance, 0);
   };

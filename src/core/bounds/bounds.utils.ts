@@ -33,7 +33,8 @@ export function getComponentsSizes(
   };
 }
 
-export const getBounds = (
+export const calculateBounds = (
+	contextInstance: ReactZoomPanPinchContext,
   wrapperWidth: number,
   newContentWidth: number,
   diffWidth: number,
@@ -42,54 +43,47 @@ export const getBounds = (
   diffHeight: number,
   centerZoomedOut: boolean,
 ): BoundsType => {
-  const scaleWidthFactor =
-    wrapperWidth > newContentWidth
-      ? diffWidth * (centerZoomedOut ? 1 : 0.5)
-      : 0;
-  const scaleHeightFactor =
-    wrapperHeight > newContentHeight
-      ? diffHeight * (centerZoomedOut ? 1 : 0.5)
-      : 0;
+		const scaleWidthFactor =
+			wrapperWidth > newContentWidth
+				? diffHeight * (centerZoomedOut ? 1 : 0.5)
+				: 0;
+		const scaleHeightFactor =
+			wrapperHeight > newContentHeight
+			// TODO: this originally used diffHeight - is that right?
+				? diffHeight * (centerZoomedOut ? 1 : 0.5)
+				: 0;
 
-  const minPositionX = wrapperWidth - newContentWidth - scaleWidthFactor;
-  const maxPositionX = scaleWidthFactor;
-  const minPositionY = wrapperHeight - newContentHeight - scaleHeightFactor;
-  const maxPositionY = scaleHeightFactor;
+		// TODO: scale affects these values!
 
-  return { minPositionX, maxPositionX, minPositionY, maxPositionY };
-};
+		if (contextInstance.explicitBounds) {
+			// if explicit bounds are set, use those instead of calculating from the content size
 
-export const calculateBounds = (
-  contextInstance: ReactZoomPanPinchContext,
-  newScale: number,
-): BoundsType => {
-  const { wrapperComponent, contentComponent } = contextInstance;
-  const { centerZoomedOut } = contextInstance.setup;
+			const explicitBoundsWidth = contextInstance.explicitBounds.maxPositionX - contextInstance.explicitBounds.minPositionX;
+			const explicitBoundsHeight = contextInstance.explicitBounds.maxPositionY - contextInstance.explicitBounds.minPositionY;
 
-  if (!wrapperComponent || !contentComponent) {
-    throw new Error("Components are not mounted");
-  }
+			const minPositionX = wrapperWidth - explicitBoundsWidth - scaleWidthFactor;
+			const maxPositionX = scaleWidthFactor;
+			const minPositionY = wrapperHeight - explicitBoundsHeight - scaleHeightFactor;
+			const maxPositionY = scaleHeightFactor;
 
-  const {
-    wrapperWidth,
-    wrapperHeight,
-    newContentWidth,
-    newDiffWidth,
-    newContentHeight,
-    newDiffHeight,
-  } = getComponentsSizes(wrapperComponent, contentComponent, newScale);
+			// console.info('getBounds (explicit)', { wrapperWidth, newContentWidth, newDiffWidth, wrapperHeight, newContentHeight, newDiffHeight, centerZoomedOut, minPositionX, maxPositionX, minPositionY, maxPositionY, explicitBounds: contextInstance.explicitBounds });
 
-  const bounds = getBounds(
-    wrapperWidth,
-    newContentWidth,
-    newDiffWidth,
-    wrapperHeight,
-    newContentHeight,
-    newDiffHeight,
-    Boolean(centerZoomedOut),
-  );
-  return bounds;
-};
+			return { minPositionX, maxPositionX, minPositionY, maxPositionY };
+		}
+		else {
+			// otherwise calculate from the content size
+
+			const minPositionX = wrapperWidth - newContentWidth - scaleWidthFactor;
+			const maxPositionX = scaleWidthFactor;
+			const minPositionY = wrapperHeight - newContentHeight - scaleHeightFactor;
+			const maxPositionY = scaleHeightFactor;
+
+			// console.info('getBounds (whole svg)', { wrapperWidth, newContentWidth, newDiffWidth, wrapperHeight, newContentHeight, newDiffHeight, centerZoomedOut, minPositionX, maxPositionX, minPositionY, maxPositionY });
+
+			return { minPositionX, maxPositionX, minPositionY, maxPositionY };
+		}
+	// }
+}
 
 export function clamp(v: number, min: number, max: number) {
   return Math.max(min, Math.min(v, max));
