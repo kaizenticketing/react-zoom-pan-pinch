@@ -7,7 +7,7 @@ import {
 import { animations } from "../animations/animations.constants";
 import { animate, handleCancelAnimation } from "../animations/animations.utils";
 import { getCenterPosition } from "../../utils";
-import { setExplicitBounds as internalSetExplicitBounds } from "core/bounds/bounds.utils";
+import { setExplicitBounds as internalSetExplicitBounds, handleCalculateBounds } from "core/bounds/bounds.utils";
 import { handleAlignToBounds } from "core/pan/panning.logic";
 
 export const zoomIn =
@@ -131,9 +131,8 @@ export const setExplicitBounds =
   ): void => {
 	internalSetExplicitBounds(contextInstance, newBounds);
 
-	// TODO: cancel animation?
-
-	// TODO: make sure we're within the new bounds
-		// handleCalculateBounds(contextInstance, contextInstance.transformState.scale);
-		handleAlignToBounds(contextInstance, 0);
+	// Update bounds using current scale, then align if needed
+	const { scale } = contextInstance.transformState;
+	handleCalculateBounds(contextInstance, scale);
+	handleAlignToBounds(contextInstance, 0);
   };

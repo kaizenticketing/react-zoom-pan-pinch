@@ -29,7 +29,7 @@ export const useResize = <T extends HTMLElement>(
   onResize: ResizeHandler<T>,
   dependencies: any[],
 ) => {
-  const resizeObserverRef = useRef<ResizeObserver>();
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   const rectRef = useRef(initialElementRect);
 

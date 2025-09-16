@@ -4,7 +4,9 @@ import del from "rollup-plugin-delete";
 import typescript from "@rollup/plugin-typescript";
 import postcss from "rollup-plugin-postcss";
 import dts from "rollup-plugin-dts";
-import pkg from "./package.json";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+const pkg = require("./package.json");
 
 export default [
   {
@@ -30,7 +32,7 @@ export default [
         exclude: "node_modules/**",
       }),
       del({ targets: ["dist/*"] }),
-      typescript({ declaration: false }),
+      typescript({ declaration: false, tsconfig: "./tsconfig.build.json" }),
       postcss({
         modules: true,
       }),
