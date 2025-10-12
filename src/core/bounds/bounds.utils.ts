@@ -62,40 +62,34 @@ export const calculateBounds = (
   // if explicit bounds are provided (interpreted as content-space rectangle),
   // convert them into wrapper-space pan limits using current scale.
   if (contextInstance.explicitBounds) {
-    const { minPositionX: minX, maxPositionX: maxX, minPositionY: minY, maxPositionY: maxY } =
-      contextInstance.explicitBounds;
+	const {
+		minPositionX: minX,
+		maxPositionX: maxX,
+		minPositionY: minY,
+		maxPositionY: maxY,
+	} = contextInstance.explicitBounds;
 
-    const rectWidthScaled = (maxX - minX) * newScale;
-    const rectHeightScaled = (maxY - minY) * newScale;
+	// Convert from content-space (SVG units) to wrapper-space (screen pixels)
+	const scaled = {
+		minPositionX: -maxX * newScale,
+		maxPositionX: -minX * newScale,
+		minPositionY: -maxY * newScale,
+		maxPositionY: -minY * newScale,
+	};
 
-    const slackX = wrapperWidth - rectWidthScaled;
-    const slackY = wrapperHeight - rectHeightScaled;
+	// console.log("[rzpp] using explicit bounds (scaled)", scaled);
+	return scaled;
+  } else {
+	// default bounds based on content size inside wrapper
+	const minPositionX = wrapperWidth - newContentWidth - scaleWidthFactor;
+	const maxPositionX = scaleWidthFactor;
+	const minPositionY = wrapperHeight - newContentHeight - scaleHeightFactor;
+	const maxPositionY = scaleHeightFactor;
 
-    const scaleWidthFactor = slackX > 0 ? slackX * (centerZoomedOut ? 1 : 0.5) : 0;
-    const scaleHeightFactor = slackY > 0 ? slackY * (centerZoomedOut ? 1 : 0.5) : 0;
-
-    // work in a coordinate space relative to the rectangle's top-left by
-    // offsetting with minX/minY, then convert back.
-    const minPrimeX = wrapperWidth - rectWidthScaled - scaleWidthFactor;
-    const maxPrimeX = scaleWidthFactor;
-    const minPrimeY = wrapperHeight - rectHeightScaled - scaleHeightFactor;
-    const maxPrimeY = scaleHeightFactor;
-
-    const minPositionX = minPrimeX - minX * newScale;
-    const maxPositionX = maxPrimeX - minX * newScale;
-    const minPositionY = minPrimeY - minY * newScale;
-    const maxPositionY = maxPrimeY - minY * newScale;
-
-    return { minPositionX, maxPositionX, minPositionY, maxPositionY };
+	const result = { minPositionX, maxPositionX, minPositionY, maxPositionY };
+	// console.log("[rzpp] calculateBounds result", result);
+	return result;
   }
-
-  // default bounds based on content size inside wrapper
-  const minPositionX = wrapperWidth - newContentWidth - scaleWidthFactor;
-  const maxPositionX = scaleWidthFactor;
-  const minPositionY = wrapperHeight - newContentHeight - scaleHeightFactor;
-  const maxPositionY = scaleHeightFactor;
-
-  return { minPositionX, maxPositionX, minPositionY, maxPositionY };
 };
 
 export function clamp(v: number, min: number, max: number) {
