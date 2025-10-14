@@ -54,12 +54,12 @@ export const handlersTable: ComponentProps = {
     ],
     description: "Function used for reset button",
   },
-  setExplicitBounds: {
+  setExplicitSvgBounds: {
 	type: ["function(bounds)"],
 	parameters: [
 	  "bounds: { minX: number; maxX: number; minY: number; maxY: number }"
 	],
-	description: "Function used for setting explicit bounds",
+	description: "Function used for setting explicit bounds (use SVG coordinates)",
   },
   centerView: {
     type: ["function(scale, animationTime, animationName)"],

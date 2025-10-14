@@ -73,7 +73,7 @@ export class ZoomPanPinch {
   // Initialization
   public isInitialized = false;
   public bounds: BoundsType | null = null;
-  public explicitBounds: BoundsType | null = null;
+  public explicitSvgBounds: BoundsType | null = null;
   // wheel helpers
   public previousWheelEvent: WheelEvent | null = null;
   public wheelStopEventTimer: ReturnType<typeof setTimeout> | null = null;

@@ -7,7 +7,7 @@ import {
 import { animations } from "../animations/animations.constants";
 import { animate, handleCancelAnimation } from "../animations/animations.utils";
 import { getCenterPosition } from "../../utils";
-import { setExplicitBounds as internalSetExplicitBounds, handleCalculateBounds } from "core/bounds/bounds.utils";
+import { setExplicitSvgBounds as internalSetExplicitSvgBounds, handleCalculateBounds } from "core/bounds/bounds.utils";
 import { handleAlignToBounds } from "core/pan/panning.logic";
 
 export const zoomIn =
@@ -124,12 +124,12 @@ export const zoomToElement =
     }
   };
 
-export const setExplicitBounds =
+export const setExplicitSvgBounds =
   (contextInstance: ReactZoomPanPinchContext) =>
   (
 	newBounds: BoundsType | null
   ): void => {
-	internalSetExplicitBounds(contextInstance, newBounds);
+	internalSetExplicitSvgBounds(contextInstance, newBounds);
 
 	// Update bounds using current scale, then align if needed
 	const { scale } = contextInstance.transformState;

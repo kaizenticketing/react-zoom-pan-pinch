@@ -10,7 +10,7 @@ import {
   setTransform,
   resetTransform,
   zoomToElement,
-  setExplicitBounds,
+  setExplicitSvgBounds,
   centerView,
 } from "../core/handlers/handlers.logic";
 
@@ -25,7 +25,7 @@ export const getControls = (
     resetTransform: resetTransform(contextInstance),
     centerView: centerView(contextInstance),
     zoomToElement: zoomToElement(contextInstance),
-	setExplicitBounds: setExplicitBounds(contextInstance)
+	setExplicitSvgBounds: setExplicitSvgBounds(contextInstance)
   };
 };
 
