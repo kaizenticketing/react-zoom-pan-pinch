@@ -50,10 +50,15 @@ export function handleAlignToBounds(
   const targetState = handlePanToBounds(contextInstance);
 
   if (targetState) {
+    const effectiveTime = customAnimationTime ?? animationTime;
+    if (effectiveTime === 0 && contextInstance.animation) {
+      return;
+    }
+
     animate(
       contextInstance,
       targetState,
-      customAnimationTime ?? animationTime,
+      effectiveTime,
       animationType,
     );
   }
