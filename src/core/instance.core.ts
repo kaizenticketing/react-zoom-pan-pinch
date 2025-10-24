@@ -315,7 +315,7 @@ export class ZoomPanPinch {
 
 		// if an animation is running and interactions are locked, prevent panning
 		if (this.animation && this.setup.lockInteractionsDuringAnimation) {
-			console.log("⚠️ onPanningStart aborted: animation in progress and interactions are locked");
+			// console.log("⚠️ onPanningStart aborted: animation in progress and interactions are locked");
 			return;
 		}
 

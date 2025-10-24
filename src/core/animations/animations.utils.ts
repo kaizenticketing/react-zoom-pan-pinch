@@ -11,7 +11,7 @@ export const handleCancelAllAnimations = (
 		return;
 
 	if (contextInstance.animation || contextInstance.velocity || contextInstance.animate) {
-		console.info("🛑 Cancelling animation", contextInstance.animationRequestId);
+		console.info("🛑 Cancelling animation #", contextInstance.animationRequestId);
 
 		// clear animation state - will be noticed by animation loop
 		contextInstance.animate = false;

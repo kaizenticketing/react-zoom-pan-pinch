@@ -92,7 +92,11 @@ export function handlePanningEnd(
 
 		contextInstance.isPanning = false;
 		
-		handleCancelAllAnimations(contextInstance);
+		// clear animation state - will be noticed by animation loop
+		// NOTE: panning animations are done outside of animation - so this is why we don't use handleCancelAllAnimations here
+		contextInstance.animate = false;
+		contextInstance.animation = null;
+		contextInstance.velocity = null;
 
 		const wrapperRect = wrapperComponent?.getBoundingClientRect();
 		const contentRect = contentComponent?.getBoundingClientRect();
