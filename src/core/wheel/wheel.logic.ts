@@ -3,7 +3,7 @@ import { ReactZoomPanPinchContext } from "../../models";
 import { handleCallback } from "../../utils/callback.utils";
 import { getContext } from "../../utils/context.utils";
 import { cancelTimeout } from "../../utils/helpers.utils";
-import { handleCancelAnimation } from "../animations/animations.utils";
+import { handleCancelAllAnimations } from "../animations/animations.utils";
 import { handleCalculateBounds } from "../bounds/bounds.utils";
 import {
   getDelta,
@@ -28,7 +28,7 @@ export const handleWheelStart = (
   const { onWheelStart, onZoomStart } = contextInstance.props;
 
   if (!contextInstance.wheelStopEventTimer) {
-    handleCancelAnimation(contextInstance);
+    handleCancelAllAnimations(contextInstance);
     handleCallback(getContext(contextInstance), event, onWheelStart);
     handleCallback(getContext(contextInstance), event, onZoomStart);
   }

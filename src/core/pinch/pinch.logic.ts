@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { ReactZoomPanPinchContext } from "../../models";
-import { handleCancelAnimation } from "../animations/animations.utils";
+import { handleCancelAllAnimations } from "../animations/animations.utils";
 import { handleAlignToScaleBounds } from "../zoom/zoom.logic";
 import {
   calculatePinchZoom,
@@ -49,7 +49,7 @@ export const handlePinchStart = (
   contextInstance.pinchLastCenterX = center.x;
   contextInstance.pinchLastCenterY = center.y;
 
-  handleCancelAnimation(contextInstance);
+  handleCancelAllAnimations(contextInstance);
 };
 
 export const handlePinchZoom = (

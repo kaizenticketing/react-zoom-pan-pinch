@@ -1,13 +1,11 @@
-/* eslint-disable no-param-reassign */
 import { ReactZoomPanPinchContext } from "../../models/context.model";
-import { handleCancelAnimation } from "../animations/animations.utils";
+import { handleCancelAllAnimations } from "../animations/animations.utils";
 import { handleCalculateBounds } from "../bounds/bounds.utils";
 import {
 	getPaddingValue,
 	getPanningClientPosition,
 	handleNewPosition,
 	handlePanningSetup,
-	handlePanToBounds,
 	handleTouchPanningSetup,
 } from "./panning.utils";
 import {
@@ -25,7 +23,7 @@ export function handlePanningStart(
 
 	const { scale } = contextInstance.transformState;
 
-	handleCancelAnimation(contextInstance);
+	handleCancelAllAnimations(contextInstance);
 	handleCalculateBounds(contextInstance, scale);
 	if (window.TouchEvent !== undefined && event instanceof TouchEvent) {
 		handleTouchPanningSetup(contextInstance, event as TouchEvent);
@@ -48,9 +46,10 @@ export function handleAlignToBounds(
 	if (isDisabled)
 		return;
 
-	const targetState = handlePanToBounds(contextInstance);
+	// TODO: this is resetting animations that are in progress - we trust our logic to track the screen size and bounds correctly without it
 
-	// TODO: this is resetting animations that are in progress - we trust our logic to track the screen size and bounds correctly?
+	// const targetState = handlePanToBounds(contextInstance);
+
 	// if (targetState) {
 	// 	const effectiveTime = customAnimationTime ?? animationTime;
 	// 	if (effectiveTime === 0 && contextInstance.animation) {
@@ -92,8 +91,8 @@ export function handlePanningEnd(
 		const { velocity, wrapperComponent, contentComponent } = contextInstance;
 
 		contextInstance.isPanning = false;
-		contextInstance.animate = false;
-		contextInstance.animation = null;
+		
+		handleCancelAllAnimations(contextInstance);
 
 		const wrapperRect = wrapperComponent?.getBoundingClientRect();
 		const contentRect = contentComponent?.getBoundingClientRect();

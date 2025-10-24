@@ -5,7 +5,7 @@ import {
 	resetTransformations,
 } from "./handlers.utils";
 import { animations } from "../animations/animations.constants";
-import { animate, handleCancelAnimation } from "../animations/animations.utils";
+import { animate, handleCancelAllAnimations } from "../animations/animations.utils";
 import { getCenterPosition } from "../../utils";
 import { setExplicitSvgBounds as internalSetExplicitSvgBounds, handleCalculateBounds } from "core/bounds/bounds.utils";
 import { handleAlignToBounds } from "core/pan/panning.logic";
@@ -108,7 +108,7 @@ export const zoomToElement =
 			offsetX = 0,
 			offsetY = 0,
 		): void => {
-			handleCancelAnimation(contextInstance);
+			handleCancelAllAnimations(contextInstance);
 
 			const { wrapperComponent } = contextInstance;
 

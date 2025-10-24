@@ -17,7 +17,7 @@ import {
 	makePassiveEventOption,
 	getCenterPosition,
 } from "../utils";
-import { handleCancelAnimation } from "./animations/animations.utils";
+import { handleCancelAllAnimations } from "./animations/animations.utils";
 import { isWheelAllowed } from "./wheel/wheel.utils";
 import { isPinchAllowed, isPinchStartAllowed } from "./pinch/pinch.utils";
 import { handleCalculateBounds } from "./bounds/bounds.utils";
@@ -162,7 +162,7 @@ export class ZoomPanPinch {
 		currentWindow?.removeEventListener("keydown", this.setKeyPressed, passive);
 		document.removeEventListener("mouseleave", this.clearPanning, passive);
 
-		handleCancelAnimation(this);
+		handleCancelAllAnimations(this);
 		this.observer?.disconnect();
 	};
 
@@ -231,7 +231,7 @@ export class ZoomPanPinch {
 	};
 
 	handleCancelAnimation = (): void => {
-		handleCancelAnimation(this);
+		handleCancelAllAnimations(this);
 	};
 
 	/// ///////
@@ -314,10 +314,12 @@ export class ZoomPanPinch {
 		event.stopPropagation();
 
 		// if an animation is running and interactions are locked, prevent panning
-		if (this.animation && this.setup.lockInteractionsDuringAnimation)
+		if (this.animation && this.setup.lockInteractionsDuringAnimation) {
+			console.log("⚠️ onPanningStart aborted: animation in progress and interactions are locked");
 			return;
+		}
 
-		handleCancelAnimation(this);
+		handleCancelAllAnimations(this);
 		handlePanningStart(this, event);
 		handleCallback(getContext(this), event, onPanningStart);
 	};
@@ -368,7 +370,7 @@ export class ZoomPanPinch {
 			return;
 
 		handlePinchStart(this, event);
-		handleCancelAnimation(this);
+		handleCancelAllAnimations(this);
 		handleCallback(getContext(this), event, onPinchingStart);
 		handleCallback(getContext(this), event, onZoomStart);
 	};
@@ -426,7 +428,7 @@ export class ZoomPanPinch {
 		if (!isDoubleTap) {
 			this.lastTouch = +new Date();
 
-			handleCancelAnimation(this);
+			handleCancelAllAnimations(this);
 
 			const { touches } = event;
 
@@ -434,7 +436,7 @@ export class ZoomPanPinch {
 			const isPinchAction = touches.length === 2;
 
 			if (isPanningAction) {
-				handleCancelAnimation(this);
+				handleCancelAllAnimations(this);
 				handlePanningStart(this, event);
 				handleCallback(getContext(this), event, onPanningStart);
 			}
