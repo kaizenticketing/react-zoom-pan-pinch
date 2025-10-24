@@ -2,7 +2,7 @@
 import { PositionType } from "../../models";
 import { ReactZoomPanPinchContext } from "../../models/context.model";
 import { animations } from "../animations/animations.constants";
-import { handleSetupAnimation } from "../animations/animations.utils";
+import { setupAnimation } from "../animations/animations.utils";
 import { getPaddingValue } from "./panning.utils";
 import {
   getVelocityPosition,
@@ -96,11 +96,14 @@ export function handleVelocityPanning(
   const startState = contextInstance.transformState;
 
   const startTime = new Date().getTime();
-  handleSetupAnimation(
+  setupAnimation(
     contextInstance,
-    animationType,
+	null,
     finalAnimationTime,
-    (step: number) => {
+    animationType,
+    (_animationId: number, step: number) => {
+console.info("Velocity panning step:", { step });
+
       const { scale, positionX, positionY } = contextInstance.transformState;
       const frameTime = new Date().getTime() - startTime;
       const animationProgress = frameTime / alignAnimationTime;
@@ -144,6 +147,8 @@ export function handleVelocityPanning(
           currentPositionY,
         );
       }
+
+	  return true; // continue animation
     },
   );
 }
