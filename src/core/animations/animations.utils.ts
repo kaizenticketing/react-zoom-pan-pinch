@@ -11,7 +11,7 @@ export const handleCancelAllAnimations = (
 		return;
 
 	if (contextInstance.animation || contextInstance.velocity || contextInstance.animate) {
-		console.info("🛑 Cancelling animation #", contextInstance.animationRequestId);
+		// console.info("🛑 Cancelling animation #", contextInstance.animationRequestId);
 
 		// clear animation state - will be noticed by animation loop
 		contextInstance.animate = false;
@@ -38,7 +38,7 @@ export function setupAnimation(
 
 	// assign unique ID to this animation request
 	const thisAnimationRequestId = ++contextInstance.animationRequestId;
-	console.info(`▶️ Starting animation #${thisAnimationRequestId}`, targetState, animationTime, animationType);
+	// console.info(`[rzpp] ▶️ Starting animation #${thisAnimationRequestId}`, targetState, animationTime, animationType);
 
 	// new animation
 	contextInstance.animation = () => {
@@ -59,7 +59,7 @@ export function setupAnimation(
 			if (thisAnimationRequestId === contextInstance.animationRequestId)
 				contextInstance.animation = null;
 
-			console.info(`🏁 Animation #${thisAnimationRequestId} complete`, targetState);
+			// console.info(`[rzpp] 🏁 Animation #${thisAnimationRequestId} complete`, targetState);
 		} else if (contextInstance.animation) {
 			//
 			// intermediate animation step
@@ -68,14 +68,14 @@ export function setupAnimation(
 
 			// animation cancelled
 			if (!continueAnimation) {
-				console.info(`🛑 Animation #${thisAnimationRequestId} cancelled`, targetState);
+				// console.info(`[rzpp] 🛑 Animation #${thisAnimationRequestId} cancelled`, targetState);
 				return;
 			}
 
 			// request next frame
 			setTimeout(() => {
 				if (!contextInstance.animation) {
-					console.info(`🛑 Animation #${thisAnimationRequestId} cancelled before next frame`);
+					// console.info(`[rzpp] 🛑 Animation #${thisAnimationRequestId} cancelled before next frame`);
 					return;
 				}
 
@@ -87,7 +87,7 @@ export function setupAnimation(
 	// start the animation
 	// setTimeout(() => {
 	if (!contextInstance.animation) {
-		console.info(`🛑 Animation #${thisAnimationRequestId} cancelled before it could be started`);
+		// console.info(`[rzpp] 🛑 Animation #${thisAnimationRequestId} cancelled before it could be started`);
 		return;
 	}
 
@@ -117,7 +117,7 @@ export function animate(
 ): void {
 	const isValid = isValidTargetState(targetState);
 	if (!contextInstance.mounted || !isValid) {
-		console.info("⚠️ Animation aborted: invalid target state or not mounted", targetState);
+		// console.info("[rzpp] ⚠️ Animation aborted: invalid target state or not mounted", targetState);
 		return;
 	}
 
@@ -126,7 +126,7 @@ export function animate(
 	if (animationTime === 0) {
 		// instant transform
 		const thisAnimationRequestId = ++contextInstance.animationRequestId;
-		console.info(`▶️ Instant animation #${thisAnimationRequestId}`, targetState);
+		// console.info(`[rzpp] ▶️ Instant animation #${thisAnimationRequestId}`, targetState);
 		setTransformState(targetState.scale, targetState.positionX, targetState.positionY);
 		return;
 	}
@@ -139,7 +139,7 @@ export function animate(
 			animationType,
 			(thisAnimationRequestId: number, step: number) => {
 				if (thisAnimationRequestId !== contextInstance.animationRequestId) {
-					console.log(`🧨 Skipping stale frame from request #${thisAnimationRequestId} (current is #${contextInstance.animationRequestId})`);
+					// console.log(`[rzpp] 🧨 Skipping stale frame from request #${thisAnimationRequestId} (current is #${contextInstance.animationRequestId})`);
 					return false; // cancel this animation
 				}
 

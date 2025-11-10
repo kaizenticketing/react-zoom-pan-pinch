@@ -34,33 +34,33 @@ export function handlePanningStart(
 }
 
 export function handleAlignToBounds(
-	contextInstance: ReactZoomPanPinchContext,
-	_customAnimationTime?: number,
+  contextInstance: ReactZoomPanPinchContext,
+  customAnimationTime?: number,
 ): void {
-	const { scale } = contextInstance.transformState;
-	const { minScale, alignmentAnimation } = contextInstance.setup;
-	const { disabled, sizeX, sizeY, animationTime, animationType } =
-		alignmentAnimation;
+  const { scale } = contextInstance.transformState;
+  const { minScale, alignmentAnimation } = contextInstance.setup;
+  const { disabled, sizeX, sizeY, animationTime, animationType } = alignmentAnimation;
 
-	const isDisabled = disabled || scale < minScale || (!sizeX && !sizeY);
-	if (isDisabled) {
-		console.info("[rzpp] Alignment to bounds is disabled");
-		return;
-	}
+  const isDisabled = disabled || scale < minScale || (!sizeX && !sizeY);
+  if (isDisabled) 
+	return;
 
-	const targetState = handlePanToBounds(contextInstance);
-	if (!targetState)
-		return;
+  // disable aligning to bounds if another animation is already running
+  if( contextInstance.animation) {
+	// console.info("[rzpp] ⚠️ Alignment to bounds aborted: another non-instant animation is already running");
+	return;
+  }
 
-	console.info("[rzpp] Aligning to bounds", targetState);
-
-	// const effectiveTime = _customAnimationTime ?? animationTime;
-
-	// // Avoid interrupting another non-instant animation that is already running.
-	// if (contextInstance.animation && effectiveTime !== 0)
-	// 	return;
-
-	// animate(contextInstance, targetState, effectiveTime, animationType);
+  const targetState = handlePanToBounds(contextInstance);
+  if (targetState) {
+	// console.info("[rzpp] Aligning to bounds", targetState);
+    animate(
+      contextInstance,
+      targetState,
+      customAnimationTime ?? animationTime,
+      animationType,
+    );
+  }
 }
 
 export function handlePanning(
