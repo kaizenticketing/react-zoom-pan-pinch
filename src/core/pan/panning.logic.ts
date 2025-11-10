@@ -1,11 +1,12 @@
 import { ReactZoomPanPinchContext } from "../../models/context.model";
-import { handleCancelAllAnimations } from "../animations/animations.utils";
+import { animate, handleCancelAllAnimations } from "../animations/animations.utils";
 import { handleCalculateBounds } from "../bounds/bounds.utils";
 import {
 	getPaddingValue,
 	getPanningClientPosition,
 	handleNewPosition,
 	handlePanningSetup,
+	handlePanToBounds,
 	handleTouchPanningSetup,
 } from "./panning.utils";
 import {
@@ -38,31 +39,28 @@ export function handleAlignToBounds(
 ): void {
 	const { scale } = contextInstance.transformState;
 	const { minScale, alignmentAnimation } = contextInstance.setup;
-	const { disabled, sizeX, sizeY /*, animationTime, animationType*/ } =
+	const { disabled, sizeX, sizeY, animationTime, animationType } =
 		alignmentAnimation;
 
 	const isDisabled = disabled || scale < minScale || (!sizeX && !sizeY);
+	if (isDisabled) {
+		console.info("[rzpp] Alignment to bounds is disabled");
+		return;
+	}
 
-	if (isDisabled)
+	const targetState = handlePanToBounds(contextInstance);
+	if (!targetState)
 		return;
 
-	// TODO: this is resetting animations that are in progress - we trust our logic to track the screen size and bounds correctly without it
+	console.info("[rzpp] Aligning to bounds", targetState);
 
-	// const targetState = handlePanToBounds(contextInstance);
+	// const effectiveTime = _customAnimationTime ?? animationTime;
 
-	// if (targetState) {
-	// 	const effectiveTime = customAnimationTime ?? animationTime;
-	// 	if (effectiveTime === 0 && contextInstance.animation) {
-	// 		return;
-	// 	}
+	// // Avoid interrupting another non-instant animation that is already running.
+	// if (contextInstance.animation && effectiveTime !== 0)
+	// 	return;
 
-	// 	animate(
-	// 		contextInstance,
-	// 		targetState,
-	// 		effectiveTime,
-	// 		animationType,
-	// 	);
-	// }
+	// animate(contextInstance, targetState, effectiveTime, animationType);
 }
 
 export function handlePanning(

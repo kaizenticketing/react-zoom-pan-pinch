@@ -54,7 +54,7 @@ export const handlersTable: ComponentProps = {
     ],
     description: "Function used for reset button",
   },
-  setExplicitSvgBounds: {
+  setExplicitBounds: {
 	type: ["function(bounds)"],
 	parameters: [
 	  "bounds: { minX: number; maxX: number; minY: number; maxY: number }"

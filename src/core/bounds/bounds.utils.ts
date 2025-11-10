@@ -61,7 +61,7 @@ export const calculateBounds = (
 
   // if explicit bounds are provided (interpreted as content-space rectangle),
   // convert them into wrapper-space pan limits using current scale.
-	if (contextInstance.explicitSvgBounds) {
+	if (contextInstance.explicitBounds) {
 		const { wrapperWidth, wrapperHeight } =
 		getComponentsSizes(wrapperComponent, contentComponent, newScale);
 
@@ -70,7 +70,7 @@ export const calculateBounds = (
 		maxPositionX: maxSvgX,
 		minPositionY: minSvgY,
 		maxPositionY: maxSvgY,
-		} = contextInstance.explicitSvgBounds;
+		} = contextInstance.explicitBounds;
 
 		// interpret SVG bounds as the *content box that must remain visible*.
 		// So the viewport edges must not cross these coordinates.
@@ -188,9 +188,9 @@ export function getMouseBoundedPosition(
   return { x, y };
 }
 
-export function setExplicitSvgBounds(
+export function setExplicitBounds(
   contextInstance: ReactZoomPanPinchContext,
   newBounds: BoundsType | null
 ): void {
-	contextInstance.explicitSvgBounds = newBounds;
+	contextInstance.explicitBounds = newBounds;
 }

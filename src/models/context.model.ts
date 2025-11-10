@@ -9,7 +9,7 @@ import {
   zoomIn,
   zoomOut,
   zoomToElement,
-  setExplicitSvgBounds
+  setExplicitBounds
 } from "../core/handlers/handlers.logic";
 import { ZoomPanPinch } from "../core/instance.core";
 
@@ -41,7 +41,7 @@ export type ReactZoomPanPinchHandlers = {
   resetTransform: ReturnType<typeof resetTransform>;
   centerView: ReturnType<typeof centerView>;
   zoomToElement: ReturnType<typeof zoomToElement>;
-  setExplicitSvgBounds: ReturnType<typeof setExplicitSvgBounds>; 
+  setExplicitBounds: ReturnType<typeof setExplicitBounds>; 
 };
 
 export type ReactZoomPanPinchRefProps = {
