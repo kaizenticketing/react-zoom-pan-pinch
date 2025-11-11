@@ -48,7 +48,7 @@ export function setupAnimation(
 	console.trace(`[rzpp] ▶️ Starting animation #${thisAnimationRequestId}`, _targetState, animationTime, animationType);
 
 	// new animation
-	contextInstance.animation = () => {
+	const animationCallback = () => {
 		console.info("[rzpp] animation callback assigned", {
 			animationRequestId: thisAnimationRequestId,
 			stack: new Error().stack,
@@ -70,14 +70,12 @@ export function setupAnimation(
 			callback(thisAnimationRequestId, lastStep);
 
 			// if this is the current animation, clear it
-			const isCurrentAnimation = thisAnimationRequestId === contextInstance.animationRequestId;
-			if (isCurrentAnimation)
+			if (contextInstance.animation === animationCallback) {
 				contextInstance.animation = null;
+			}
 
-			// TODO: otherwise it doesn't clear properly?
-
-			console.info(`[rzpp] 🏁 Animation #${thisAnimationRequestId} complete`, _targetState, isCurrentAnimation);
-		} else if (contextInstance.animation) {
+			// console.info(`[rzpp] 🏁 Animation #${thisAnimationRequestId} complete`, _targetState);
+		} else if (contextInstance.animation === animationCallback) {
 			//
 			// intermediate animation step
 
@@ -85,8 +83,8 @@ export function setupAnimation(
 
 			// animation cancelled
 			if (!continueAnimation) {
-				console.info(`[rzpp] 🛑 Animation #${thisAnimationRequestId} cancelled`, _targetState);
-				if (contextInstance.animation && thisAnimationRequestId === contextInstance.animationRequestId) {
+				// console.info(`[rzpp] 🛑 Animation #${thisAnimationRequestId} cancelled`, _targetState);
+				if (contextInstance.animation === animationCallback) {
 					contextInstance.animation = null;
 				}
 				contextInstance.animate = false;
@@ -95,15 +93,17 @@ export function setupAnimation(
 
 			// request next frame
 			setTimeout(() => {
-				if (!contextInstance.animation) {
+				if (contextInstance.animation !== animationCallback) {
 					// console.info(`[rzpp] 🛑 Animation #${thisAnimationRequestId} cancelled before next frame`);
 					return;
 				}
 
-				requestAnimationFrame(contextInstance.animation);
+				requestAnimationFrame(animationCallback);
 			}, 0);
 		}
 	};
+
+	contextInstance.animation = animationCallback;
 
 	// start the animation
 	// setTimeout(() => {
@@ -112,7 +112,7 @@ export function setupAnimation(
 		return;
 	}
 
-	requestAnimationFrame(contextInstance.animation);
+	requestAnimationFrame(animationCallback);
 	// }, 0);
 }
 
