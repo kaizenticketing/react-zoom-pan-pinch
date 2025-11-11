@@ -19,21 +19,30 @@ export const isPanningStartAllowed = (
   const targetIsShadowDom = "shadowRoot" in target && "composedPath" in event;
   const isWrapperChild = targetIsShadowDom
     ? event.composedPath().some((el) => {
-        if (!(el instanceof Element)) {
-          return false;
-        }
+      if (!(el instanceof Element)) {
+        return false;
+      }
 
-        return wrapperComponent?.contains(el);
-      })
+      return wrapperComponent?.contains(el);
+    })
     : wrapperComponent?.contains(target);
 
   const isAllowed = isInitialized && target && isWrapperChild;
 
-  if (!isAllowed) return false;
+  if (!isAllowed) {
+    console.info("[rzpp] ⚠️ Panning start aborted: not initialized or target not in wrapper", {
+      isInitialized,
+      target,
+      isWrapperChild,
+    });
+    return false;
+  }
 
   const isExcluded = isExcludedNode(target, excluded);
+  if (isExcluded) 
+    return false;
 
-  if (isExcluded) return false;
+  console.info("[rzpp] ✅ Panning start allowed");
 
   return true;
 };
@@ -46,7 +55,14 @@ export const isPanningAllowed = (
 
   const isAllowed = isInitialized && isPanning && !disabled;
 
-  if (!isAllowed) return false;
+  if (!isAllowed) {
+    // console.info("[rzpp] ⚠️ Panning aborted: not initialized, not panning, or panning disabled", {
+    //   isInitialized,
+    //   isPanning,
+    //   disabled,
+    // });
+    return false;
+  }
 
   return true;
 };
@@ -57,6 +73,8 @@ export const handlePanningSetup = (
 ): void => {
   const { positionX, positionY } = contextInstance.transformState;
 
+  console.info("[rzpp] 🖐️ Panning started");
+
   contextInstance.isPanning = true;
 
   // Panning with mouse
@@ -64,7 +82,7 @@ export const handlePanningSetup = (
   const y = event.clientY;
 
   contextInstance.startCoords = { x: x - positionX, y: y - positionY };
-  contextInstance.clientCoords = {x: x, y:  y};
+  contextInstance.clientCoords = { x: x, y: y };
 };
 
 export const handleTouchPanningSetup = (
@@ -82,7 +100,7 @@ export const handleTouchPanningSetup = (
     const x = touches[0].clientX;
     const y = touches[0].clientY;
     contextInstance.startCoords = { x: x - positionX, y: y - positionY };
-    contextInstance.clientCoords = {x: x, y:  y};
+    contextInstance.clientCoords = { x: x, y: y };
   }
 };
 export function handlePanToBounds(

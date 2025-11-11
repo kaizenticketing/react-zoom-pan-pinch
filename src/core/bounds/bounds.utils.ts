@@ -23,6 +23,8 @@ export function getComponentsSizes(
   const newDiffWidth = wrapperWidth - newContentWidth;
   const newDiffHeight = wrapperHeight - newContentHeight;
 
+
+
   return {
     wrapperWidth,
     wrapperHeight,
@@ -59,37 +61,40 @@ export const calculateBounds = (
       ? newDiffHeight * (centerZoomedOut ? 1 : 0.5)
       : 0;
 
+  console.info("[rzpp] calculateBounds", { scaleWidthFactor, scaleHeightFactor });
+
   // if explicit bounds are provided (interpreted as content-space rectangle),
   // convert them into wrapper-space pan limits using current scale.
-	if (contextInstance.explicitBounds) {
-		const { wrapperWidth, wrapperHeight } =
-		getComponentsSizes(wrapperComponent, contentComponent, newScale);
+  if (contextInstance.explicitBounds) {
+    const { wrapperWidth, wrapperHeight } = getComponentsSizes(wrapperComponent, contentComponent, newScale);
 
-		const {
-		minPositionX: minSvgX,
-		maxPositionX: maxSvgX,
-		minPositionY: minSvgY,
-		maxPositionY: maxSvgY,
-		} = contextInstance.explicitBounds;
+    const {
+      minPositionX: minSvgX,
+      maxPositionX: maxSvgX,
+      minPositionY: minSvgY,
+      maxPositionY: maxSvgY,
+    } = contextInstance.explicitBounds;
 
-		// interpret SVG bounds as the *content box that must remain visible*.
-		// So the viewport edges must not cross these coordinates.
-		const minPositionX = -maxSvgX * newScale + wrapperWidth;
-		const maxPositionX = -minSvgX * newScale;
-		const minPositionY = -maxSvgY * newScale + wrapperHeight;
-		const maxPositionY = -minSvgY * newScale;
+    // interpret SVG bounds as the *content box that must remain visible*.
+    // So the viewport edges must not cross these coordinates.
+    const minPositionX = -maxSvgX * newScale + wrapperWidth;
+    const maxPositionX = -minSvgX * newScale;
+    const minPositionY = -maxSvgY * newScale + wrapperHeight;
+    const maxPositionY = -minSvgY * newScale;
 
-		return { minPositionX, maxPositionX, minPositionY, maxPositionY };
-	} else {
-	// default bounds based on content size inside wrapper
-	const minPositionX = wrapperWidth - newContentWidth - scaleWidthFactor;
-	const maxPositionX = scaleWidthFactor;
-	const minPositionY = wrapperHeight - newContentHeight - scaleHeightFactor;
-	const maxPositionY = scaleHeightFactor;
+    const result = { minPositionX, maxPositionX, minPositionY, maxPositionY };
+    console.info("[rzpp] calculateBounds explicit", { result });
+    return result;
+  } else {
+    // default bounds based on content size inside wrapper
+    const minPositionX = wrapperWidth - newContentWidth - scaleWidthFactor;
+    const maxPositionX = scaleWidthFactor;
+    const minPositionY = wrapperHeight - newContentHeight - scaleHeightFactor;
+    const maxPositionY = scaleHeightFactor;
 
-	const result = { minPositionX, maxPositionX, minPositionY, maxPositionY };
-	// console.log("[rzpp] calculateBounds result", result);
-	return result;
+    const result = { minPositionX, maxPositionX, minPositionY, maxPositionY };
+    console.log("[rzpp] calculateBounds implicit", { result });
+    return result;
   }
 };
 
@@ -192,5 +197,5 @@ export function setExplicitBounds(
   contextInstance: ReactZoomPanPinchContext,
   newBounds: BoundsType | null
 ): void {
-	contextInstance.explicitBounds = newBounds;
+  contextInstance.explicitBounds = newBounds;
 }

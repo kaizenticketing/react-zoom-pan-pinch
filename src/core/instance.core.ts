@@ -221,10 +221,12 @@ export class ZoomPanPinch {
 				} else {
 					// recalculate bounds		
 					handleCalculateBounds(this, this.transformState.scale);
-					handleAlignToBounds(this, 0);
+
 
 					// allow us to say that the whole thing is initialized and ready for interactions
 					this.ready = true;
+					
+					handleAlignToBounds(this, 0);
 				}
 			}
 		});
@@ -319,7 +321,7 @@ export class ZoomPanPinch {
 
 		// if an animation is running and interactions are locked, prevent panning
 		if (this.animation && this.setup.lockInteractionsDuringAnimation) {
-			// console.log("⚠️ onPanningStart aborted: animation in progress and interactions are locked");
+			console.log("⚠️ onPanningStart aborted: animation in progress and interactions are locked", { animation: this });
 			return;
 		}
 
