@@ -22,7 +22,7 @@ export const handleCancelAllAnimations = (
 
 export function setupAnimation(
 	contextInstance: ReactZoomPanPinchContext,
-	targetState: StateType | null,
+	_targetState: StateType | null,
 	animationTime: number,
 	animationType: string,
 	callback: (animationId: number, step: number) => boolean,
@@ -125,7 +125,7 @@ export function animate(
 
 	if (animationTime === 0) {
 		// instant transform
-		const thisAnimationRequestId = ++contextInstance.animationRequestId;
+		/*const thisAnimationRequestId =*/ ++contextInstance.animationRequestId;
 		// console.info(`[rzpp] ▶️ Instant animation #${thisAnimationRequestId}`, targetState);
 		setTransformState(targetState.scale, targetState.positionX, targetState.positionY);
 		return;
