@@ -18,7 +18,7 @@ export function handlePanningStart(
 	contextInstance: ReactZoomPanPinchContext,
 	event: MouseEvent | TouchEvent,
 ): void {
-	console.info("[rzpp] 🖐️ Panning start requested");
+	// console.info("[rzpp] 🖐️ Panning start requested");
 	// if an animation is running and interactions are locked, prevent panning
 	if (contextInstance.animation && contextInstance.setup.lockInteractionsDuringAnimation)
 		return;
@@ -54,7 +54,7 @@ export function handleAlignToBounds(
 
   const targetState = handlePanToBounds(contextInstance);
   if (targetState) {
-	console.info("[rzpp] Aligning to bounds", targetState);
+	// console.info("[rzpp] Aligning to bounds", targetState);
     animate(
       contextInstance,
       targetState,

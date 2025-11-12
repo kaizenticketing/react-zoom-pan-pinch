@@ -30,19 +30,15 @@ export const isPanningStartAllowed = (
   const isAllowed = isInitialized && target && isWrapperChild;
 
   if (!isAllowed) {
-    console.info("[rzpp] ⚠️ Panning start aborted: not initialized or target not in wrapper", {
-      isInitialized,
-      target,
-      isWrapperChild,
-    });
+    // console.info("[rzpp] ⚠️ Panning start aborted: not initialized or target not in wrapper", { isInitialized, target, isWrapperChild });
     return false;
   }
 
   const isExcluded = isExcludedNode(target, excluded);
-  if (isExcluded) 
+  if (isExcluded)
     return false;
 
-  console.info("[rzpp] ✅ Panning start allowed");
+  // console.info("[rzpp] ✅ Panning start allowed");
 
   return true;
 };
@@ -73,7 +69,7 @@ export const handlePanningSetup = (
 ): void => {
   const { positionX, positionY } = contextInstance.transformState;
 
-  console.info("[rzpp] 🖐️ Panning started");
+  // console.info("[rzpp] 🖐️ Panning started");
 
   contextInstance.isPanning = true;
 

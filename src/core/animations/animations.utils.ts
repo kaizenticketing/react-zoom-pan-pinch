@@ -7,10 +7,7 @@ import {
 export const handleCancelAllAnimations = (
 	contextInstance: ReactZoomPanPinchContext,
 ): void => {
-	console.info("[rzpp] cancelAllAnimations", {
-		ready: contextInstance.ready,
-		hadAnimation: Boolean(contextInstance.animation),
-	});
+	// console.info("[rzpp] cancelAllAnimations", { ready: contextInstance.ready, hadAnimation: Boolean(contextInstance.animation) });
 
 	if (!contextInstance.mounted || !contextInstance.ready)
 		return;
@@ -32,7 +29,7 @@ export function setupAnimation(
 	animationType: string,
 	callback: (animationId: number, step: number) => boolean,
 ): void {
-	console.trace("[rzpp] ▶️ Starting animation", _targetState, animationTime, animationType);
+	// console.trace("[rzpp] ▶️ Starting animation", _targetState, animationTime, animationType);
 
 	if (!contextInstance.mounted)
 		return;
@@ -45,14 +42,11 @@ export function setupAnimation(
 
 	// assign unique ID to this animation request
 	const thisAnimationRequestId = ++contextInstance.animationRequestId;
-	console.trace(`[rzpp] ▶️ Starting animation #${thisAnimationRequestId}`, _targetState, animationTime, animationType);
+	// console.trace(`[rzpp] ▶️ Starting animation #${thisAnimationRequestId}`, _targetState, animationTime, animationType);
 
 	// new animation
 	const animationCallback = () => {
-		console.info("[rzpp] animation callback assigned", {
-			animationRequestId: thisAnimationRequestId,
-			stack: new Error().stack,
-		});
+		// console.info("[rzpp] animation callback assigned", { animationRequestId: thisAnimationRequestId });
 
 		const frameTime = new Date().getTime() - startTime;
 		const animationProgress = frameTime / animationTime;
@@ -62,7 +56,7 @@ export function setupAnimation(
 		const step: number = animationTypeFn(animationProgress);
 
 		if (frameTime >= animationTime) {
-			console.info("[rzpp] animation cleared via completion", { animationRequestId: thisAnimationRequestId });
+			// console.info("[rzpp] animation cleared via completion", { animationRequestId: thisAnimationRequestId });
 
 			//
 			// final animation step
@@ -136,7 +130,7 @@ export function animate(
 	animationTime: number,
 	animationType: string,
 ): void {
-	console.info("[rzpp] ▶️ Animation requested", targetState, animationTime, animationType);
+	// console.info("[rzpp] ▶️ Animation requested", targetState, animationTime, animationType);
 
 	const isValid = isValidTargetState(targetState);
 	if (!contextInstance.mounted || !isValid) {

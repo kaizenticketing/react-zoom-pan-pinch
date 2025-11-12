@@ -61,7 +61,7 @@ export const calculateBounds = (
       ? newDiffHeight * (centerZoomedOut ? 1 : 0.5)
       : 0;
 
-  console.info("[rzpp] calculateBounds", { scaleWidthFactor, scaleHeightFactor });
+  // console.info("[rzpp] calculateBounds", { scaleWidthFactor, scaleHeightFactor });
 
   // if explicit bounds are provided (interpreted as content-space rectangle),
   // convert them into wrapper-space pan limits using current scale.
@@ -83,7 +83,7 @@ export const calculateBounds = (
     const maxPositionY = -minSvgY * newScale;
 
     const result = { minPositionX, maxPositionX, minPositionY, maxPositionY };
-    console.info("[rzpp] calculateBounds explicit", { result });
+    // console.info("[rzpp] calculateBounds explicit", { result });
     return result;
   } else {
     // default bounds based on content size inside wrapper
@@ -93,7 +93,7 @@ export const calculateBounds = (
     const maxPositionY = scaleHeightFactor;
 
     const result = { minPositionX, maxPositionX, minPositionY, maxPositionY };
-    console.log("[rzpp] calculateBounds implicit", { result });
+    // console.log("[rzpp] calculateBounds implicit", { result });
     return result;
   }
 };
