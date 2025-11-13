@@ -84,8 +84,8 @@ export class ZoomPanPinch {
 	public startCoords: StartCoordsType = null;
 	public clientCoords: ClientCoordsType = null;
 	public lastTouch: number | null = null;
+	public lastTouchClientY: number | null = null;
 	public allowVerticalScrollThrough = false;
-	private wrapperOriginalTouchAction: string | null = null;
 	// pinch helpers
 	public distance: null | number = null;
 	public lastDistance: null | number = null;
@@ -110,7 +110,8 @@ export class ZoomPanPinch {
 		this.props = props;
 		this.setup = createSetup(this.props);
 		this.transformState = createState(this.props);
-		this.syncScrollThroughState(true);
+		this.allowVerticalScrollThrough =
+			Boolean(this.setup.panning.allowVerticalScrollThrough);
 	}
 
 	mount = () => {
@@ -125,7 +126,8 @@ export class ZoomPanPinch {
 		this.props = newProps;
 		handleCalculateBounds(this, this.transformState.scale);
 		this.setup = createSetup(newProps);
-		this.syncScrollThroughState();
+		this.allowVerticalScrollThrough =
+			Boolean(this.setup.panning.allowVerticalScrollThrough);
 	};
 
 	initializeWindowEvents = (): void => {
@@ -442,11 +444,14 @@ export class ZoomPanPinch {
 			const isPinchAction = touches.length === 2;
 
 			if (isPanningAction) {
+				const firstTouch = touches[0];
+				this.lastTouchClientY = firstTouch ? firstTouch.clientY : null;
 				handleCancelAllAnimations(this);
 				handlePanningStart(this, event);
 				handleCallback(getContext(this), event, onPanningStart);
 			}
 			if (isPinchAction) {
+				this.resetTouchTracking();
 				this.onPinchStart(event);
 			}
 		}
@@ -462,20 +467,26 @@ export class ZoomPanPinch {
 			const isAllowed = isPanningAllowed(this);
 			if (!isAllowed) return;
 
-			if (!this.allowVerticalScrollThrough) {
+			if (this.allowVerticalScrollThrough) {
+				event.preventDefault();
+			} else {
 				event.preventDefault();
 				event.stopPropagation();
 			}
 
 			const touch = event.touches[0];
-			handlePanning(this, touch.clientX, touch.clientY);
+			this.handleTouchScrollThrough(touch.clientY);
+			const targetClientY = this.getTouchPanningClientY(touch.clientY);
+			handlePanning(this, touch.clientX, targetClientY);
 			handleCallback(getContext(this), event, onPanning);
 		} else if (event.touches.length > 1) {
+			this.resetTouchTracking();
 			this.onPinch(event);
 		}
 	};
 
 	onTouchPanningStop = (event: TouchEvent): void => {
+		this.resetTouchTracking();
 		this.onPanningStop(event);
 		this.onPinchStop(event);
 	};
@@ -576,48 +587,34 @@ export class ZoomPanPinch {
 		this.contentComponent.style.transform = transform;
 	};
 
-	private computeAllowVerticalScrollThrough = (): boolean => {
-		const { lockAxisX, lockAxisY } = this.setup.panning;
-		return lockAxisY && !lockAxisX;
-	};
+	private handleTouchScrollThrough = (clientY: number): void => {
+		if (!this.allowVerticalScrollThrough) return;
 
-	private applyTouchAction = (): void => {
-		if (!this.wrapperComponent) return;
+		if (this.lastTouchClientY === null) {
+			this.lastTouchClientY = clientY;
+			return;
+		}
 
-		if (this.allowVerticalScrollThrough) {
-			const currentTouchAction =
-				this.wrapperComponent.style.touchAction || "";
-			const shouldCapture =
-				currentTouchAction !== "pan-y" ||
-				this.wrapperOriginalTouchAction === null;
-			if (shouldCapture) {
-				this.wrapperOriginalTouchAction = currentTouchAction;
-			}
-			if (currentTouchAction !== "pan-y") {
-				this.wrapperComponent.style.touchAction = "pan-y";
-			}
-		} else {
-			if (this.wrapperOriginalTouchAction !== null) {
-				this.wrapperComponent.style.touchAction =
-					this.wrapperOriginalTouchAction;
-				this.wrapperOriginalTouchAction = null;
-			} else if (this.wrapperComponent.style.touchAction === "pan-y") {
-				this.wrapperComponent.style.removeProperty("touch-action");
+		const deltaY = this.lastTouchClientY - clientY;
+		if (deltaY !== 0) {
+			const doc = this.wrapperComponent?.ownerDocument;
+			const currentWindow = doc?.defaultView ?? window;
+			if (typeof currentWindow?.scrollBy === "function") {
+				currentWindow.scrollBy(0, deltaY);
 			}
 		}
+		this.lastTouchClientY = clientY;
 	};
 
-	private syncScrollThroughState = (force = false): void => {
-		const next = this.computeAllowVerticalScrollThrough();
-		const changed = force || next !== this.allowVerticalScrollThrough;
-		this.allowVerticalScrollThrough = next;
-		const shouldReapply =
-			next &&
-			this.wrapperComponent !== null &&
-			this.wrapperComponent.style.touchAction !== "pan-y";
-		if (changed || shouldReapply) {
-			this.applyTouchAction();
+	private getTouchPanningClientY = (clientY: number): number => {
+		if (!this.allowVerticalScrollThrough || !this.startCoords) {
+			return clientY;
 		}
+		return this.startCoords.y + this.transformState.positionY;
+	};
+
+	private resetTouchTracking = (): void => {
+		this.lastTouchClientY = null;
 	};
 
 	getContext = () => {
@@ -657,7 +654,6 @@ export class ZoomPanPinch {
 		this.cleanupWindowEvents();
 		this.wrapperComponent = wrapperComponent;
 		this.contentComponent = contentComponent;
-		this.syncScrollThroughState(true);
 		handleCalculateBounds(this, this.transformState.scale);
 		this.handleInitializeWrapperEvents(wrapperComponent);
 		this.handleInitialize(wrapperComponent, contentComponent);

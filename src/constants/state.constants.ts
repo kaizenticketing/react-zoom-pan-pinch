@@ -38,6 +38,7 @@ export const initialSetup: LibrarySetup = {
     velocityDisabled: false,
     lockAxisX: false,
     lockAxisY: false,
+    allowVerticalScrollThrough: false,
     allowLeftClickPan: true,
     allowMiddleClickPan: true,
     allowRightClickPan: true,
