@@ -84,7 +84,6 @@ export class ZoomPanPinch {
 	public startCoords: StartCoordsType = null;
 	public clientCoords: ClientCoordsType = null;
 	public lastTouch: number | null = null;
-	public lastTouchScreenY: number | null = null;
 	public allowVerticalScrollThrough = false;
 	private touchStartClientX: number | null = null;
 	private touchStartClientY: number | null = null;
@@ -447,8 +446,6 @@ export class ZoomPanPinch {
 
 			if (isPanningAction) {
 				const firstTouch = touches[0];
-				this.lastTouchScreenY = firstTouch ? firstTouch.clientY : null;
-
 				if (this.allowVerticalScrollThrough && firstTouch) {
 					this.touchStartClientX = firstTouch.clientX;
 					this.touchStartClientY = firstTouch.clientY;
@@ -631,9 +628,7 @@ export class ZoomPanPinch {
 		this.contentComponent.style.transform = transform;
 	};
 
-
-	private resetTouchTracking = (): void => {
-		this.lastTouchScreenY = null;
+	resetTouchTracking = (): void => {
 		this.touchStartClientX = null;
 		this.touchStartClientY = null;
 		this.touchAxisDecision = "none";
