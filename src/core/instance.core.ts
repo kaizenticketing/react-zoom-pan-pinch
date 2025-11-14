@@ -84,7 +84,7 @@ export class ZoomPanPinch {
 	public startCoords: StartCoordsType = null;
 	public clientCoords: ClientCoordsType = null;
 	public lastTouch: number | null = null;
-	public lastTouchClientY: number | null = null;
+	public lastTouchScreenY: number | null = null;
 	public allowVerticalScrollThrough = false;
 	// pinch helpers
 	public distance: null | number = null;
@@ -192,7 +192,6 @@ export class ZoomPanPinch {
 		const { centerOnInit } = this.setup;
 
 		const hasTarget = (entries: ResizeObserverEntry[], target: Element) => {
-			// eslint-disable-next-line no-restricted-syntax
 			for (const entry of entries) {
 				if (entry.target === target) {
 					return true;
@@ -445,7 +444,7 @@ export class ZoomPanPinch {
 
 			if (isPanningAction) {
 				const firstTouch = touches[0];
-				this.lastTouchClientY = firstTouch ? firstTouch.clientY : null;
+				this.lastTouchScreenY = firstTouch ? firstTouch.clientY : null;
 				handleCancelAllAnimations(this);
 				handlePanningStart(this, event);
 				handleCallback(getContext(this), event, onPanningStart);
@@ -462,22 +461,43 @@ export class ZoomPanPinch {
 		const { onPanning } = this.props;
 
 		if (this.isPanning && event.touches.length === 1) {
-			if (disabled) return;
+			if (disabled)
+				return;
 
 			const isAllowed = isPanningAllowed(this);
-			if (!isAllowed) return;
+			if (!isAllowed)
+				return;
+
+			const touch = event.touches[0];
+			console.info("Touch positions:", event.touches[0]);
 
 			if (this.allowVerticalScrollThrough) {
 				event.preventDefault();
+
+				if (this.lastTouchScreenY === null) {
+					this.lastTouchScreenY = touch.screenY;
+					return;
+				}
+
+				const deltaY = this.lastTouchScreenY - touch.screenY;
+				if (deltaY !== 0) {
+					console.info("[rzpp] Touch scroll deltaY:", { deltaY, screenY: touch.screenY });
+					window.scrollBy(0, deltaY);
+				}
+				this.lastTouchScreenY = touch.screenY;
 			} else {
 				event.preventDefault();
 				event.stopPropagation();
 			}
 
-			const touch = event.touches[0];
-			this.handleTouchScrollThrough(touch.clientY);
-			const targetClientY = this.getTouchPanningClientY(touch.clientY);
-			handlePanning(this, touch.clientX, targetClientY);
+			// 	const targetClientY = this.getTouchPanningClientY(touch.clientY);
+			// if (!this.allowVerticalScrollThrough || !this.startCoords) {
+			// 	return clientY;
+			// }
+			// return this.startCoords.y + this.transformState.positionY;
+
+			handlePanning(this, touch.clientX, touch.clientY);
+
 			handleCallback(getContext(this), event, onPanning);
 		} else if (event.touches.length > 1) {
 			this.resetTouchTracking();
@@ -554,6 +574,7 @@ export class ZoomPanPinch {
 			this.onChangeCallbacks.forEach((callback) => callback(ctx));
 			handleCallback(ctx, { scale, positionX, positionY }, onTransformed);
 		} else {
+			// eslint-disable-next-line no-console
 			console.error("Detected NaN set state values");
 		}
 	};
@@ -587,34 +608,8 @@ export class ZoomPanPinch {
 		this.contentComponent.style.transform = transform;
 	};
 
-	private handleTouchScrollThrough = (clientY: number): void => {
-		if (!this.allowVerticalScrollThrough) return;
-
-		if (this.lastTouchClientY === null) {
-			this.lastTouchClientY = clientY;
-			return;
-		}
-
-		const deltaY = this.lastTouchClientY - clientY;
-		if (deltaY !== 0) {
-			const doc = this.wrapperComponent?.ownerDocument;
-			const currentWindow = doc?.defaultView ?? window;
-			if (typeof currentWindow?.scrollBy === "function") {
-				currentWindow.scrollBy(0, deltaY);
-			}
-		}
-		this.lastTouchClientY = clientY;
-	};
-
-	private getTouchPanningClientY = (clientY: number): number => {
-		if (!this.allowVerticalScrollThrough || !this.startCoords) {
-			return clientY;
-		}
-		return this.startCoords.y + this.transformState.positionY;
-	};
-
 	private resetTouchTracking = (): void => {
-		this.lastTouchClientY = null;
+		this.lastTouchScreenY = null;
 	};
 
 	getContext = () => {
