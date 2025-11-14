@@ -86,6 +86,9 @@ export class ZoomPanPinch {
 	public lastTouch: number | null = null;
 	public lastTouchScreenY: number | null = null;
 	public allowVerticalScrollThrough = false;
+	private touchStartClientX: number | null = null;
+	private touchStartClientY: number | null = null;
+	private touchAxisDecision: "none" | "pan" | "scroll" = "none";
 	// pinch helpers
 	public distance: null | number = null;
 	public lastDistance: null | number = null;
@@ -445,6 +448,17 @@ export class ZoomPanPinch {
 			if (isPanningAction) {
 				const firstTouch = touches[0];
 				this.lastTouchScreenY = firstTouch ? firstTouch.clientY : null;
+
+				if (this.allowVerticalScrollThrough && firstTouch) {
+					this.touchStartClientX = firstTouch.clientX;
+					this.touchStartClientY = firstTouch.clientY;
+					this.touchAxisDecision = "none";
+				} else {
+					this.touchStartClientX = null;
+					this.touchStartClientY = null;
+					this.touchAxisDecision = "pan";
+				}
+
 				handleCancelAllAnimations(this);
 				handlePanningStart(this, event);
 				handleCallback(getContext(this), event, onPanningStart);
@@ -469,36 +483,45 @@ export class ZoomPanPinch {
 				return;
 
 			const touch = event.touches[0];
-			console.info("Touch positions:", event.touches[0]);
 
 			if (this.allowVerticalScrollThrough) {
-				event.preventDefault();
+				// Decide whether this gesture should be treated as a scroll or a pan.
+				if (this.touchAxisDecision === "none") {
+					if (this.touchStartClientX == null || this.touchStartClientY == null) {
+						this.touchStartClientX = touch.clientX;
+						this.touchStartClientY = touch.clientY;
+					}
 
-				if (this.lastTouchScreenY === null) {
-					this.lastTouchScreenY = touch.screenY;
+					const dx = touch.clientX - this.touchStartClientX;
+					const dy = touch.clientY - this.touchStartClientY;
+					const distance = Math.sqrt(dx * dx + dy * dy);
+					const AXIS_LOCK_THRESHOLD = 8; // px
+
+					if (distance >= AXIS_LOCK_THRESHOLD) {
+						this.touchAxisDecision =
+							Math.abs(dx) > Math.abs(dy) ? "pan" : "scroll";
+					}
+				}
+
+				if (this.touchAxisDecision === "scroll") {
+					// Let the browser handle vertical scrolling natively; do not pan the map.
 					return;
 				}
 
-				const deltaY = this.lastTouchScreenY - touch.screenY;
-				if (deltaY !== 0) {
-					console.info("[rzpp] Touch scroll deltaY:", { deltaY, screenY: touch.screenY });
-					window.scrollBy(0, deltaY);
+				if (this.touchAxisDecision === "pan") {
+					event.preventDefault();
+					event.stopPropagation();
+					handlePanning(this, touch.clientX, touch.clientY);
+					handleCallback(getContext(this), event, onPanning);
 				}
-				this.lastTouchScreenY = touch.screenY;
+				// If still undecided, do nothing yet: allow the browser to continue deciding scroll.
 			} else {
+				// No scroll-through: always treat as pan and block native scroll.
 				event.preventDefault();
 				event.stopPropagation();
+				handlePanning(this, touch.clientX, touch.clientY);
+				handleCallback(getContext(this), event, onPanning);
 			}
-
-			// 	const targetClientY = this.getTouchPanningClientY(touch.clientY);
-			// if (!this.allowVerticalScrollThrough || !this.startCoords) {
-			// 	return clientY;
-			// }
-			// return this.startCoords.y + this.transformState.positionY;
-
-			handlePanning(this, touch.clientX, touch.clientY);
-
-			handleCallback(getContext(this), event, onPanning);
 		} else if (event.touches.length > 1) {
 			this.resetTouchTracking();
 			this.onPinch(event);
@@ -608,8 +631,12 @@ export class ZoomPanPinch {
 		this.contentComponent.style.transform = transform;
 	};
 
+
 	private resetTouchTracking = (): void => {
 		this.lastTouchScreenY = null;
+		this.touchStartClientX = null;
+		this.touchStartClientY = null;
+		this.touchAxisDecision = "none";
 	};
 
 	getContext = () => {
